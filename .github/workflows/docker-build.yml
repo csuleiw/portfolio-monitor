@@ -27,7 +27,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/your-repo-name  # 请替换为你的镜像名称
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/python flask docker  # 请替换为你的镜像名称
           tags: |
             type=ref,event=branch
             type=ref,event=pr

@@ -1,26 +1,13 @@
-# 构建阶段
-FROM python:3.9-slim as builder
+FROM python:3.10-alpine
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --user --no-cache-dir -r requirements.txt
+COPY . .
 
-# 运行阶段
-FROM python:3.9-slim
+EXPOSE 3000
 
-RUN useradd --create-home --shell /bin/bash app
-USER app
-WORKDIR /home/app
-
-# 从构建阶段复制已安装的包
-COPY --from=builder /root/.local /home/app/.local
-COPY --chown=app:app . .
-
-ENV PATH=/home/app/.local/bin:$PATH
-ENV FLASK_APP=app.py
-ENV FLASK_ENV=production
-
-EXPOSE 5000
-
+RUN apk update && apk --no-cache add openssl bash curl &&\
+    chmod +x app.py &&\
+    pip install -r requirements.txt
+    
 CMD ["python3", "app.py"]

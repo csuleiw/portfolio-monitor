@@ -23,5 +23,4 @@ ENV FLASK_ENV=production
 
 EXPOSE 5000
 
-# 使用 Gunicorn 作为 WSGI 服务器
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["python3", "app.py"]

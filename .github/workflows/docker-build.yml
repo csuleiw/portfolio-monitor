@@ -1,0 +1,47 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ main ]  # 指定触发分支，例如 main 或 master
+    tags:              # 可选：推送标签时也触发，常用于发布版本
+      - 'v*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 运行器
+
+    steps:
+      # 步骤1: 检出仓库代码
+      - name: Checkout code
+        uses: actions/checkout@v4  # 使用 checkout Action 获取代码
+
+      # 步骤2: 登录 Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 步骤3: 提取元数据（为镜像生成标签和标签）
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/your-repo-name  # 请替换为你的镜像名称
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      # 步骤4: 构建并推送 Docker 镜像
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .  # Dockerfile 所在的上下文路径，通常是仓库根目录
+          push: true  # 设置为 true 以推送镜像
+          tags: ${{ steps.meta.outputs.tags }}  # 使用上一步生成的标签
+          labels: ${{ steps.meta.outputs.labels }}  # 使用上一步生成的标签
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/your-repo-name:latest  # 可选：缓存优化
+          cache-to: type=inline  # 可选：缓存优化

@@ -3,127 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>猜数字游戏</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
             padding: 20px;
+            background-color: #f5f5f5;
         }
-        
         .container {
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
-            width: 100%;
-            transition: transform 0.3s ease;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
-        .container:hover {
-            transform: translateY(-5px);
-        }
-        
         h1 {
             color: #333;
-            font-size: 3rem;
+            text-align: center;
+        }
+        .message {
+            background-color: #e9f7fe;
+            padding: 15px;
+            border-radius: 5px;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #2196F3;
         }
-        
-        p {
-            color: #666;
-            font-size: 1.2rem;
-            line-height: 1.6;
-            margin-bottom: 25px;
+        .attempts {
+            font-weight: bold;
+            margin-bottom: 15px;
         }
-        
-        .btn {
-            background: linear-gradient(to right, #6e8efb, #a777e3);
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 12px 30px;
-            font-size: 1rem;
-            border-radius: 50px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 16px;
         }
-        
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        button:hover {
+            background-color: #45a049;
         }
-        
-        .counter {
-            margin-top: 20px;
-            font-size: 1rem;
-            color: #777;
+        .new-game-btn {
+            background-color: #f44336;
+            margin-top: 10px;
         }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
-            }
-            
-            h1 {
-                font-size: 2.5rem;
-            }
+        .new-game-btn:hover {
+            background-color: #d32f2f;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 id="greeting">Hello World!</h1>
-        <p>欢迎来到我的第一个网页。这是一个简单的"Hello World"页面，使用了HTML、CSS和JavaScript。</p>
-        <button class="btn" id="changeBtn">更改问候语</button>
-        <div class="counter">点击次数: <span id="counter">0</span></div>
+        <h1>猜数字游戏</h1>
+        
+        <div class="message">
+            {{ message }}
+        </div>
+        
+        <div class="attempts">
+            尝试次数: {{ attempts }}
+        </div>
+        
+        <form method="POST">
+            <input type="number" name="guess" min="1" max="100" placeholder="输入1-100之间的数字" required autofocus>
+            <button type="submit">猜!</button>
+        </form>
+        
+        <form method="POST">
+            <input type="hidden" name="new_game" value="true">
+            <button type="submit" class="new-game-btn">开始新游戏</button>
+        </form>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const greeting = document.getElementById('greeting');
-            const changeBtn = document.getElementById('changeBtn');
-            const counterElement = document.getElementById('counter');
-            
-            let clickCount = 0;
-            const greetings = [
-                "Hello World!",
-                "你好，世界！",
-                "Hola Mundo!",
-                "Bonjour le Monde!",
-                "Hallo Welt!",
-                "Ciao Mondo!",
-                "こんにちは世界！"
-            ];
-            
-            changeBtn.addEventListener('click', function() {
-                clickCount++;
-                counterElement.textContent = clickCount;
-                
-                // 随机选择一个问候语
-                const randomIndex = Math.floor(Math.random() * greetings.length);
-                greeting.textContent = greetings[randomIndex];
-                
-                // 添加动画效果
-                greeting.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    greeting.style.transform = 'scale(1)';
-                }, 200);
-            });
-        });
-    </script>
 </body>
 </html>

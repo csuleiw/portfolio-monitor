@@ -1,10 +1,12 @@
 from flask import Flask, render_template
 import akshare as ak
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, time
 import traceback
 import json
 import concurrent.futures
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
 
 app = Flask(__name__)
 
@@ -12,8 +14,12 @@ app = Flask(__name__)
 FUNDS = [
     {"code": "518800", "name": "国泰黄金ETF"},
     {"code": "510720", "name": "招商上证消费80ETF"},
-    {"code": "159781", "name": "易方达沪深300ETF"}  # 注意：1595781应该是159781
+    {"code": "159781", "name": "易方达沪深300ETF"}
 ]
+
+# 全局变量存储基金数据
+cached_funds_data = None
+cached_current_time = None
 
 def get_fund_data(fund_code, start_date):
     """获取基金数据"""
@@ -152,21 +158,43 @@ def calculate_all_funds_returns(start_date):
     
     return results
 
-@app.route('/')
-def index():
-    """显示所有基金涨幅数据"""
-    start_date = "20240102"
+def update_fund_data():
+    """更新基金数据"""
+    global cached_funds_data, cached_current_time
+    print(f"{datetime.now()}: 开始更新基金数据...")
     
-    # 获取所有基金数据
-    funds_data = calculate_all_funds_returns(start_date)
-    current_time = datetime.now()
+    start_date = "20240102"
+    cached_funds_data = calculate_all_funds_returns(start_date)
+    cached_current_time = datetime.now()
     
     # 将图表数据转换为JSON格式
-    for fund_data in funds_data:
+    for fund_data in cached_funds_data:
         if fund_data['success']:
             fund_data['chart_data_json'] = json.dumps(fund_data['chart_data'])
     
-    return render_template('index.html', funds_data=funds_data, current_time=current_time)
+    print(f"{datetime.now()}: 基金数据更新完成")
+
+@app.route('/')
+def index():
+    """显示所有基金涨幅数据"""
+    # 如果缓存中没有数据，则先获取一次
+    if cached_funds_data is None:
+        update_fund_data()
+    
+    return render_template('index.html', 
+                         funds_data=cached_funds_data, 
+                         current_time=cached_current_time)
+
+# 初始化调度器
+scheduler = BackgroundScheduler()
+# 每天22:00执行更新任务
+scheduler.add_job(func=update_fund_data, trigger='cron', hour=22, minute=0)
+scheduler.start()
+
+# 在应用退出时关闭调度器
+atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == '__main__':
+    # 启动时先获取一次数据
+    update_fund_data()
     app.run(debug=True, host='0.0.0.0', port=5000)

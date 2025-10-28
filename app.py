@@ -163,7 +163,7 @@ def update_fund_data():
     global cached_funds_data, cached_current_time
     print(f"{datetime.now()}: 开始更新基金数据...")
     
-    start_date = "20240102"
+    start_date = "20250102"
     cached_funds_data = calculate_all_funds_returns(start_date)
     cached_current_time = datetime.now()
     

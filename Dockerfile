@@ -6,8 +6,10 @@ COPY . .
 
 EXPOSE 5000
 
-RUN apk update && apk --no-cache add openssl bash curl &&\
-    chmod +x app.py &&\
-    pip install -r requirements.txt
+COPY requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
     
-CMD ["python3", "app.py"]
+CMD ["python", "app.py"]
